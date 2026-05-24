@@ -6,3 +6,7 @@ package.json
 code.gs
 appsscript.json
 .env
+
+.dev.vars*
+!.dev.vars.example
+!.env.example
