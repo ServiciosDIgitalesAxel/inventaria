@@ -11,7 +11,7 @@ function json(status, payload) {
 }
 
 export async function onRequestPost({ request, env, params }) {
-  const gasUrl = env.GAS_WEBAPP_URL;
+  const gasUrl = env.script.google.com/macros/s/AKfycbzVWVGKwDHRIgi49n8vkK2hq652hHC293qNhHfWFfI1q3ipHjXW6Lozkj49tNGEYkGQ/exec;
   const functionName = String(params.name || "").trim();
 
   if (!gasUrl) {
