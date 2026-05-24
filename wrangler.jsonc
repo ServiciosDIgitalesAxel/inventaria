@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "inventaria",
+  "main": "./cloudflare-worker.js",
+  "compatibility_date": "2026-05-24",
+  "vars": {
+    "GAS_WEBAPP_URL": "https://script.google.com/macros/s/AKfycbwQCG1d9SKY9M560e2UFYcv98R77OUk6fCCGH_ce2Hz9sTHxIEJGDuMwI1-R6d3dHPs/exec"
+  },
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": {
+    "enabled": false
+  }
+}
