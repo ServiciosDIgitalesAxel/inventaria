@@ -1,0 +1,25 @@
+{
+  "name": "INVENTARIA",
+  "short_name": "INVENTARIA",
+  "description": "Control de stock y equipos en prestamo al personal.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#19334f",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/YMqwuaR.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/YMqwuaR.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
