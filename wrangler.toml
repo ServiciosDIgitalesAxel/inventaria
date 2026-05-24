@@ -1,0 +1,8 @@
+﻿name = "inventaria"
+compatibility_date = "2026-05-24"
+
+[assets]
+directory = "./"
+
+[observability]
+enabled = false
