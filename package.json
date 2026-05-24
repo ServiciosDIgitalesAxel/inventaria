@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node local-server.mjs",
-    "deploy": "npx wrangler deploy"
+    "dev": "node local-server.mjs"
   }
 }

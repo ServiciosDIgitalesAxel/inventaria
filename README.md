@@ -88,15 +88,14 @@ Si no se configura `GAS_WEBAPP_URL`, la PWA se abre pero no puede conectar con S
 
 ## Si se publico como Worker (`workers.dev`)
 
-Una URL terminada en `workers.dev` no ejecuta la carpeta `functions/`; esa carpeta es de Cloudflare Pages. Para Worker use `cloudflare-worker.js` junto con `wrangler.toml`.
+Una URL terminada en `workers.dev` no ejecuta la carpeta `functions/`; esa carpeta es de Cloudflare Pages. Para Worker use el archivo `cloudflare-worker.js`.
 
-Si el Worker esta conectado a GitHub:
+En el editor del Worker:
 
-1. Suba al repositorio `cloudflare-worker.js`, `wrangler.toml`, `.assetsignore`, `index.html`, `manifest.webmanifest` y `service-worker.js`.
-2. En Cloudflare, el deploy command puede ser `npm run deploy`.
-3. `wrangler.toml` ya define `GAS_WEBAPP_URL`, `main = "./cloudflare-worker.js"` y los assets estaticos desde la raiz del proyecto.
-4. `.assetsignore` evita publicar como archivos publicos el codigo de GAS, README, configuraciones y scripts locales.
-5. Haga push a `main`; Cloudflare deberia reconstruir automaticamente.
+1. Pegue el contenido de `cloudflare-worker.js`.
+2. Si usa Static Assets, vincule los archivos publicos (`index.html`, `manifest.webmanifest`, `service-worker.js` y `_headers`) al Worker.
+3. Configure la variable `GAS_WEBAPP_URL` con la URL `/exec` de Apps Script, o use el fallback incluido para la primera prueba.
+4. Vuelva a desplegar.
 
 Si `/api/gas/solicitarCodigoAcceso` devuelve 404, el Worker no esta ejecutando `cloudflare-worker.js` o la ruta API no quedo publicada. Si devuelve 502, Cloudflare si llego al Worker, pero Apps Script no devolvio JSON: revise la implementacion de GAS y el acceso `Cualquier persona`.
 

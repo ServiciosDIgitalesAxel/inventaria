@@ -2886,7 +2886,7 @@
         }
       }
 
-      /* Visual scale +35%: higher readability for phones and shared PCs. */
+      /* Previous large visual layer. The compact density block below now overrides it. */
       body {
         font-size: 24px;
         line-height: 1.58;
@@ -3355,6 +3355,478 @@
 
         .stat-value {
           font-size: 50px;
+        }
+      }
+
+      /* Compact density: 25% smaller than the previous large visual layer. */
+      body {
+        font-size: 18px;
+        line-height: 1.52;
+        padding: 22px;
+      }
+
+      .container {
+        width: min(1560px, 100%);
+      }
+
+      .auth-card {
+        width: min(520px, 100%);
+      }
+
+      .auth-header,
+      .auth-body,
+      .header-content,
+      .modal-header,
+      .modal-body {
+        padding: 26px;
+      }
+
+      .logo,
+      .auth-logo {
+        width: 82px;
+        height: 82px;
+        flex-basis: 82px;
+        padding: 8px;
+      }
+
+      .header-left,
+      .auth-header {
+        gap: 16px;
+      }
+
+      .header-title h1,
+      .auth-header h1 {
+        font-size: 39px;
+      }
+
+      .header-title .subtitle,
+      .auth-header p {
+        font-size: 18px;
+      }
+
+      .sync-status,
+      .header-action {
+        min-height: 40px;
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+
+      .nav-tabs {
+        gap: 8px;
+        padding: 8px;
+        margin-bottom: 24px;
+      }
+
+      .nav-tab {
+        min-height: 56px;
+        font-size: 17px;
+        gap: 10px;
+        padding: 14px 16px;
+      }
+
+      .stats-grid,
+      .grid,
+      .dashboard-grid,
+      .quick-grid,
+      .filter-grid {
+        gap: 20px;
+      }
+
+      .stat-card {
+        min-height: 158px;
+        padding: 24px;
+      }
+
+      .stat-info h3,
+      .stat-label,
+      .form-label,
+      th,
+      .badge,
+      .calendar-weekday,
+      .calendar-more,
+      .note-meta,
+      .file-meta,
+      .assignment-meta,
+      .bitacora-entry-date,
+      .bitacora-entry-responsable,
+      .calendar-summary-card span {
+        font-size: 14px;
+      }
+
+      .stat-value {
+        font-size: 44px;
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+      }
+
+      .alert,
+      .expiry-panel,
+      .filter-panel,
+      .bombero-card,
+      .ficha-section,
+      .assignment-item,
+      .note-item,
+      .file-item,
+      .report-row,
+      .calendar-agenda-item,
+      .calendar-summary-card,
+      .gear-group-body,
+      .talle-option,
+      .dashboard-item,
+      .result-card,
+      .equipment-row {
+        padding: 22px;
+      }
+
+      .alert-title,
+      .expiry-item-title,
+      .report-row h3,
+      .bitacora-entry-heading h3,
+      .calendar-agenda-item h3,
+      .assignment-item h4,
+      .gear-group-title,
+      .ficha-section-title,
+      .filter-title {
+        font-size: 16px;
+      }
+
+      .alert-list,
+      .expiry-header p,
+      .expiry-item-detail,
+      .expiry-empty,
+      .expiry-managed summary,
+      .expiry-managed-row,
+      .record-banner,
+      .report-row p,
+      .bitacora-entry-main p,
+      .calendar-agenda-item p,
+      .assignment-item p,
+      .gear-group-empty,
+      .checkbox-wrapper label,
+      .auth-message,
+      .bombero-details,
+      .rank,
+      .empty-state p {
+        font-size: 15px;
+      }
+
+      .expiry-header h2,
+      .section-heading h2 {
+        font-size: 28px;
+      }
+
+      .form-input,
+      .form-select {
+        min-height: 54px;
+        font-size: 17px;
+        padding: 14px 15px;
+      }
+
+      textarea.form-input {
+        min-height: 118px;
+      }
+
+      .search-input input {
+        padding-left: 44px;
+      }
+
+      .search-icon {
+        left: 15px;
+        font-size: 18px;
+      }
+
+      .btn {
+        min-height: 52px;
+        font-size: 16px;
+        gap: 10px;
+        padding: 13px 20px;
+      }
+
+      .btn-sm {
+        min-height: 42px;
+        font-size: 14px;
+        padding: 9px 14px;
+      }
+
+      table {
+        min-width: 1180px;
+      }
+
+      th,
+      td {
+        padding: 18px;
+      }
+
+      td {
+        font-size: 16px;
+      }
+
+      .badge {
+        min-height: 30px;
+        padding: 5px 12px;
+      }
+
+      .action-buttons {
+        gap: 8px;
+      }
+
+      .action-btn,
+      .modal-close {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+      }
+
+      .bombero-info h3 {
+        font-size: 22px;
+      }
+
+      .bombero-avatar {
+        width: 66px;
+        height: 66px;
+        flex-basis: 66px;
+        font-size: 26px;
+      }
+
+      .bombero-stat {
+        padding: 14px;
+      }
+
+      .bombero-stat-label {
+        font-size: 12px;
+      }
+
+      .bombero-stat-value {
+        font-size: 32px;
+      }
+
+      .assignment-list {
+        max-height: 260px;
+      }
+
+      .gear-group summary {
+        padding: 17px 18px;
+      }
+
+      .calendar-shell {
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 22px;
+      }
+
+      .calendar-toolbar {
+        padding: 18px;
+      }
+
+      .calendar-title {
+        font-size: 24px;
+      }
+
+      .calendar-day {
+        min-height: 128px;
+        padding: 10px;
+      }
+
+      .calendar-day-number {
+        min-width: 32px;
+        height: 32px;
+        font-size: 15px;
+      }
+
+      .calendar-chip {
+        font-size: 13px;
+        padding: 5px 7px;
+      }
+
+      .calendar-summary-card strong {
+        font-size: 30px;
+      }
+
+      .checkbox-wrapper {
+        min-height: 52px;
+      }
+
+      .checkbox-wrapper input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+      }
+
+      .modal-content {
+        width: min(940px, 100%);
+      }
+
+      .modal-title {
+        font-size: 26px;
+      }
+
+      .modal-footer {
+        padding: 20px 26px;
+      }
+
+      @media (max-width: 1100px) {
+        .calendar-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        body {
+          font-size: 17px;
+          padding: 10px;
+        }
+
+        .auth-shell,
+        .modal {
+          padding: 8px;
+        }
+
+        .auth-header,
+        .auth-body,
+        .header-content,
+        .modal-header,
+        .modal-body {
+          padding: 17px;
+        }
+
+        .logo,
+        .auth-logo {
+          width: 66px;
+          height: 66px;
+          flex-basis: 66px;
+        }
+
+        .header-title h1,
+        .auth-header h1 {
+          font-size: 29px;
+        }
+
+        .header-title .subtitle,
+        .auth-header p {
+          font-size: 15px;
+        }
+
+        .nav-tab {
+          min-height: 54px;
+          font-size: 16px;
+          padding: 14px 15px;
+        }
+
+        .stat-card {
+          min-height: 134px;
+          padding: 20px;
+        }
+
+        .stat-value {
+          font-size: 39px;
+        }
+
+        .stat-icon {
+          width: 52px;
+          height: 52px;
+          font-size: 26px;
+        }
+
+        .alert,
+        .expiry-panel,
+        .filter-panel,
+        .bombero-card,
+        .ficha-section,
+        .assignment-item,
+        .note-item,
+        .file-item,
+        .report-row,
+        .calendar-agenda-item,
+        .calendar-summary-card,
+        .gear-group-body,
+        .talle-option,
+        .dashboard-item,
+        .result-card,
+        .equipment-row {
+          padding: 17px;
+        }
+
+        .form-input,
+        .form-select {
+          min-height: 54px;
+          font-size: 17px;
+        }
+
+        .btn,
+        .filter-actions .btn,
+        .section-heading .btn {
+          min-height: 54px;
+          font-size: 16px;
+        }
+
+        .btn-sm {
+          min-height: 45px;
+          font-size: 14px;
+        }
+
+        .section-heading h2,
+        .expiry-header h2 {
+          font-size: 24px;
+        }
+
+        .bombero-info h3 {
+          font-size: 21px;
+        }
+
+        .bombero-avatar {
+          width: 58px;
+          height: 58px;
+          flex-basis: 58px;
+        }
+
+        .calendar-day {
+          min-height: 96px;
+          padding: 8px;
+        }
+
+        .calendar-chip {
+          font-size: 12px;
+          padding: 4px 5px;
+        }
+
+        .modal-title {
+          font-size: 23px;
+        }
+
+        .modal-footer {
+          padding: 14px 17px;
+        }
+
+        table {
+          min-width: 1130px;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .logo,
+        .auth-logo {
+          width: 62px;
+          height: 62px;
+          flex-basis: 62px;
+        }
+
+        .header-title h1,
+        .auth-header h1 {
+          font-size: 27px;
+        }
+
+        .header-title .subtitle {
+          font-size: 14px;
+        }
+
+        .stat-value {
+          font-size: 38px;
         }
       }
 
@@ -4743,7 +5215,7 @@
       let actualizacionAutomaticaEnCurso = false;
       let operadorSincronizacionPendiente = "";
       const SYNC_DELAY_MS = 900;
-      const AUTO_REFRESH_MS = 12000;
+      const AUTO_REFRESH_MS = 30000;
 
       function registrarPWA() {
         if (ES_GAS || !("serviceWorker" in navigator)) return;

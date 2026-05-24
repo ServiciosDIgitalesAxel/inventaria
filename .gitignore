@@ -1,9 +1,8 @@
 functions
-!functions/
-!functions/**
 node_modules
 .wrangler
 local-server.mjs
+package.json
 code.gs
 appsscript.json
 .env
