@@ -1,0 +1,16 @@
+.git
+.gitignore
+.wrangler
+.env
+.assetsignore
+wrangler.toml
+README.md
+package.json
+node_modules
+functions
+appsscript.json
+code.gs
+local-server.mjs
+cloudflare-worker.js
+cloudflare-worker-classic.js
+*-firebase-adminsdk-*.json
