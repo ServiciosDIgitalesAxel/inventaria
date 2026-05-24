@@ -86,6 +86,20 @@ Pasos:
 
 Si no se configura `GAS_WEBAPP_URL`, la PWA se abre pero no puede conectar con Sheets. Ese estado sirve solo para revisar pantalla, instalacion y cache.
 
+## Si se publico como Worker (`workers.dev`)
+
+Una URL terminada en `workers.dev` no ejecuta la carpeta `functions/`; esa carpeta es de Cloudflare Pages. Para Worker use `cloudflare-worker.js` junto con `wrangler.toml`.
+
+Si el Worker esta conectado a GitHub:
+
+1. Suba al repositorio `cloudflare-worker.js`, `wrangler.toml`, `.assetsignore`, `index.html`, `manifest.webmanifest` y `service-worker.js`.
+2. En Cloudflare, el deploy command puede ser `npm run deploy`.
+3. `wrangler.toml` ya define `GAS_WEBAPP_URL`, `main = "./cloudflare-worker.js"` y los assets estaticos desde la raiz del proyecto.
+4. `.assetsignore` evita publicar como archivos publicos el codigo de GAS, README, configuraciones y scripts locales.
+5. Haga push a `main`; Cloudflare deberia reconstruir automaticamente.
+
+Si `/api/gas/solicitarCodigoAcceso` devuelve 404, el Worker no esta ejecutando `cloudflare-worker.js` o la ruta API no quedo publicada. Si devuelve 502, Cloudflare si llego al Worker, pero Apps Script no devolvio JSON: revise la implementacion de GAS y el acceso `Cualquier persona`.
+
 ## Rendimiento
 
 La interfaz trabaja primero en memoria del navegador para que los botones respondan rapido. Los cambios se agrupan durante una pausa corta y luego se sincronizan con GAS, evitando una llamada al servidor por cada click.

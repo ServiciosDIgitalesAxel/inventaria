@@ -1,0 +1,12 @@
+name = "inventaria"
+main = "./cloudflare-worker.js"
+compatibility_date = "2026-05-24"
+
+[vars]
+GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzVWVGKwDHRIgi49n8vkK2hq652hHC293qNhHfWFfI1q3ipHjXW6Lozkj49tNGEYkGQ/exec"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
