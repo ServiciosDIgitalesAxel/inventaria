@@ -4045,6 +4045,7 @@
             <span class="session-user" id="session-user" style="display: none;"></span>
             <div class="session-actions">
               <button class="header-action" id="theme-toggle" onclick="toggleTheme()" type="button" aria-label="Cambiar modo visual">Modo oscuro</button>
+              <button class="header-action requiere-sesion" id="push-toggle" onclick="activarNotificacionesPush()" type="button" style="display: none;">Notificaciones</button>
               <button class="header-action requiere-configurar" onclick="openConfiguracion()" type="button">Configuración</button>
               <button class="header-action requiere-admin" onclick="openUsuarios()" type="button" style="display: none;">Usuarios</button>
               <button class="header-action requiere-sesion" onclick="cerrarSesion()" type="button" style="display: none;">Salir</button>
@@ -4965,6 +4966,14 @@
               <label for="config-notificaciones">Enviar alertas automáticas de vencimiento por correo</label>
             </div>
             <div class="form-group">
+              <div class="record-banner" id="push-info">
+                Las notificaciones push se activan desde cada telefono instalado como PWA. Firebase debe estar configurado para poder enviar avisos reales.
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <button class="btn btn-secondary btn-sm requiere-sesion" onclick="activarNotificacionesPush()" type="button">Activar push en este dispositivo</button>
+                <button class="btn btn-warning btn-sm requiere-sesion" onclick="enviarPushPrueba()" type="button">Enviar push de prueba</button>
+                <button class="btn btn-danger btn-sm requiere-sesion" onclick="desactivarPushDispositivo()" type="button">Desactivar este dispositivo</button>
+              </div>
               <label class="form-label" for="config-responsable">Configurado por - nombre y apellido *</label>
               <input class="form-input" id="config-responsable" type="text" placeholder="Nombre y apellido del responsable" />
             </div>
@@ -5194,6 +5203,7 @@
       const USA_BACKEND_REMOTO = ES_GAS || USA_API_REMOTA;
       const SESSION_STORAGE_KEY = "indumentaria_sesion_v1";
       const THEME_STORAGE_KEY = "inventaria_theme_v1";
+      const PUSH_TOKEN_STORAGE_KEY = "inventaria_push_token_v1";
       const VISTAS_VALIDAS = ["inicio", "inventario", "bomberos", "bitacora", "calendario"];
       let sesionActual = null;
       let usuariosSistema = [];
@@ -5211,11 +5221,13 @@
       let colaSincronizacion = Promise.resolve();
       let sincronizacionTimer = null;
       let sincronizacionEnCurso = false;
-      let actualizacionAutomaticaTimer = null;
+      let actualizacionAutomaticaInicializada = false;
       let actualizacionAutomaticaEnCurso = false;
+      let actualizacionRemotaUltimoIntento = 0;
       let operadorSincronizacionPendiente = "";
       const SYNC_DELAY_MS = 900;
-      const AUTO_REFRESH_MS = 30000;
+      const REMOTE_REFRESH_MIN_GAP_MS = 60000;
+      const REVISION_SIGNAL_KEY = "inventaria_revision_signal_v1";
 
       function registrarPWA() {
         if (ES_GAS || !("serviceWorker" in navigator)) return;
@@ -5408,6 +5420,161 @@
         } else {
           etiqueta.style.display = "none";
         }
+        actualizarBotonPush();
+      }
+
+      function pushDisponible() {
+        return Boolean(
+          USA_BACKEND_REMOTO &&
+          !ES_GAS &&
+          sesionActual &&
+          "serviceWorker" in navigator &&
+          "Notification" in window
+        );
+      }
+
+      function actualizarBotonPush() {
+        const button = document.getElementById("push-toggle");
+        if (!button) return;
+        if (!pushDisponible()) {
+          button.style.display = "none";
+          return;
+        }
+        button.style.display = "";
+        if (Notification.permission === "granted" && localStorage.getItem(PUSH_TOKEN_STORAGE_KEY)) {
+          button.textContent = "Push activo";
+          button.title = "Este dispositivo ya esta registrado para notificaciones.";
+          return;
+        }
+        if (Notification.permission === "denied") {
+          button.textContent = "Push bloqueado";
+          button.title = "El navegador bloqueo las notificaciones. Revise los permisos del sitio.";
+          return;
+        }
+        button.textContent = "Activar push";
+        button.title = "Recibir alertas de INVENTARIA en este dispositivo.";
+      }
+
+      function cargarScript(src) {
+        return new Promise((resolve, reject) => {
+          const existente = document.querySelector(`script[src="${src}"]`);
+          if (existente) {
+            resolve();
+            return;
+          }
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.onload = resolve;
+          script.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
+          document.head.appendChild(script);
+        });
+      }
+
+      async function cargarFirebasePush() {
+        if (!window.INVENTARIA_FIREBASE) {
+          await cargarScript("./firebase-config.js");
+        }
+        const firebaseConfig = window.INVENTARIA_FIREBASE || {};
+        if (!firebaseConfig.enabled || !firebaseConfig.vapidKey || !firebaseConfig.config?.projectId) {
+          throw new Error("Falta configurar firebase-config.js con enabled=true, config y vapidKey.");
+        }
+        if (!window.firebase?.messaging) {
+          await cargarScript("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
+          await cargarScript("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
+        }
+        if (!window.firebase.apps.length) {
+          window.firebase.initializeApp(firebaseConfig.config);
+        }
+        return {
+          messaging: window.firebase.messaging(),
+          vapidKey: firebaseConfig.vapidKey
+        };
+      }
+
+      async function activarNotificacionesPush() {
+        if (!pushDisponible()) {
+          alert("Las notificaciones push solo estan disponibles en la PWA publicada en Cloudflare.");
+          return;
+        }
+        try {
+          const permiso = await Notification.requestPermission();
+          if (permiso !== "granted") {
+            actualizarBotonPush();
+            alert("El navegador no autorizo las notificaciones.");
+            return;
+          }
+          const registration = await navigator.serviceWorker.ready;
+          const { messaging, vapidKey } = await cargarFirebasePush();
+          const token = await messaging.getToken({
+            vapidKey,
+            serviceWorkerRegistration: registration
+          });
+          if (!token) {
+            throw new Error("Firebase no devolvio token para este dispositivo.");
+          }
+          await ejecutarGasAutenticado("registrarDispositivoPush", {
+            token,
+            userAgent: navigator.userAgent,
+            plataforma: navigator.platform || "",
+            idioma: navigator.language || "es-AR"
+          });
+          localStorage.setItem(PUSH_TOKEN_STORAGE_KEY, token);
+          messaging.onMessage((payload) => {
+            const notification = payload.notification || {};
+            const data = payload.data || {};
+            if (Notification.permission === "granted") {
+              new Notification(notification.title || data.title || "INVENTARIA", {
+                body: notification.body || data.body || "Hay una novedad en el sistema.",
+                icon: "https://i.imgur.com/YMqwuaR.png"
+              });
+            }
+          });
+          actualizarBotonPush();
+          alert("Notificaciones activadas en este dispositivo.");
+        } catch (error) {
+          actualizarBotonPush();
+          alert(`No se pudieron activar las notificaciones push: ${error.message}`);
+        }
+      }
+
+      async function enviarPushPrueba() {
+        if (!pushDisponible()) {
+          alert("Las notificaciones push solo estan disponibles en la PWA publicada en Cloudflare.");
+          return;
+        }
+        try {
+          const token = localStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
+          if (!token) {
+            alert("Primero active push en este dispositivo.");
+            return;
+          }
+          const respuesta = await ejecutarGasAutenticado("enviarPushPrueba", { pushToken: token });
+          alert(respuesta.mensaje || "Push de prueba enviado.");
+        } catch (error) {
+          alert(`No se pudo enviar el push de prueba: ${error.message}`);
+        }
+      }
+
+      async function desactivarPushDispositivo() {
+        if (!pushDisponible()) {
+          alert("No hay push activo para desactivar en esta vista.");
+          return;
+        }
+        const token = localStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
+        if (!token) {
+          alert("Este dispositivo no tiene push activo.");
+          return;
+        }
+        if (!confirm("Desactivar notificaciones push en este dispositivo?")) return;
+        try {
+          await ejecutarGasAutenticado("desactivarDispositivoPush", { pushToken: token });
+          localStorage.removeItem(PUSH_TOKEN_STORAGE_KEY);
+          actualizarBotonPush();
+          alert("Notificaciones push desactivadas en este dispositivo.");
+        } catch (error) {
+          alert(`No se pudo desactivar el push: ${error.message}`);
+        }
       }
 
       function mostrarAcceso() {
@@ -5578,25 +5745,61 @@
       }
 
       function iniciarActualizacionAutomatica() {
-        if (!USA_BACKEND_REMOTO || actualizacionAutomaticaTimer) return;
-        actualizacionAutomaticaTimer = setInterval(verificarActualizacionRemota, AUTO_REFRESH_MS);
+        if (!USA_BACKEND_REMOTO || actualizacionAutomaticaInicializada) return;
+        actualizacionAutomaticaInicializada = true;
+        window.addEventListener("focus", solicitarRevisionPorEvento);
+        window.addEventListener("online", solicitarRevisionPorEvento);
+        window.addEventListener("storage", procesarRevisionDeOtraPestana);
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) solicitarRevisionPorEvento();
+        });
       }
 
       function detenerActualizacionAutomatica() {
-        if (actualizacionAutomaticaTimer) {
-          clearInterval(actualizacionAutomaticaTimer);
-          actualizacionAutomaticaTimer = null;
-        }
+        actualizacionRemotaUltimoIntento = 0;
       }
 
       function haySincronizacionPendiente() {
         return Boolean(sincronizacionTimer || sincronizacionEnCurso || operadorSincronizacionPendiente);
       }
 
-      async function verificarActualizacionRemota() {
-        if (!USA_BACKEND_REMOTO || !sistemaRemoto.configurado || actualizacionAutomaticaEnCurso || haySincronizacionPendiente() || document.hidden) {
+      function solicitarRevisionPorEvento() {
+        verificarActualizacionRemota({ respetarPausa: true });
+      }
+
+      function procesarRevisionDeOtraPestana(event) {
+        if (event.key !== REVISION_SIGNAL_KEY || !event.newValue) return;
+        try {
+          const signal = JSON.parse(event.newValue);
+          if (signal.revision && signal.revision !== sistemaRemoto.revision) {
+            verificarActualizacionRemota({ respetarPausa: false });
+          }
+        } catch (error) {
+          // Si la seÃ±al local no se puede leer, simplemente se ignora.
+        }
+      }
+
+      function notificarRevisionLocal(revision) {
+        if (!revision) return;
+        try {
+          localStorage.setItem(REVISION_SIGNAL_KEY, JSON.stringify({
+            revision,
+            ts: Date.now()
+          }));
+        } catch (error) {
+          // La sincronizacion entre pestaÃ±as es una mejora opcional.
+        }
+      }
+
+      async function verificarActualizacionRemota(opciones = {}) {
+        if (!USA_BACKEND_REMOTO || !sesionActual || !sistemaRemoto.configurado || actualizacionAutomaticaEnCurso || haySincronizacionPendiente() || document.hidden) {
           return;
         }
+        const ahora = Date.now();
+        if (opciones.respetarPausa && ahora - actualizacionRemotaUltimoIntento < REMOTE_REFRESH_MIN_GAP_MS) {
+          return;
+        }
+        actualizacionRemotaUltimoIntento = ahora;
         actualizacionAutomaticaEnCurso = true;
         try {
           const respuesta = await ejecutarGas("obtenerRevision", { token: tokenSesion() });
@@ -5652,6 +5855,7 @@
             return;
           }
           sistemaRemoto.revision = respuesta.revision || sistemaRemoto.revision;
+          notificarRevisionLocal(sistemaRemoto.revision);
           setSyncStatus("Guardado en Sheets", "saved");
         }).catch((error) => {
           setSyncStatus("No guardado", "error");

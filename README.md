@@ -123,4 +123,18 @@ El calendario no reemplaza las alarmas por correo: las complementa. La alarma em
 
 La version incluida ya trae manifiesto PWA y service worker para alojamiento estatico. En Google Apps Script puro se mantiene como web app normal; en Cloudflare Pages puede instalarse como PWA en el telefono.
 
-Por ahora, las alarmas reales siguen por correo desde Apps Script. Las notificaciones push conviene dejarlas como segunda etapa: requieren guardar suscripciones por dispositivo y manejar permisos del navegador, algo que es viable, pero mejor encararlo despues de validar el flujo diario con el cuartel.
+Las alarmas por correo siguen funcionando desde Apps Script. Ademas, la base de notificaciones push ya esta preparada para Firebase Cloud Messaging:
+
+1. Cree un proyecto en Firebase.
+2. En `Project settings > General`, cree una Web app y copie la configuracion publica en `firebase-config.js`.
+3. En `Project settings > Cloud Messaging`, copie la Web Push certificate key pair y pegue la clave publica en `vapidKey`.
+4. Cambie `enabled: false` por `enabled: true` en `firebase-config.js`.
+5. En Google Cloud/Firebase, cree una cuenta de servicio con permiso para Firebase Cloud Messaging.
+6. En Apps Script, agregue estas Script Properties:
+   - `INVENTARIA_FCM_PROJECT_ID`: ID del proyecto Firebase.
+   - `INVENTARIA_FCM_SERVICE_ACCOUNT_JSON`: JSON completo de la cuenta de servicio.
+7. Publique una nueva version de GAS y Cloudflare.
+8. Ingrese a INVENTARIA desde la PWA y pulse `Activar push`.
+9. Use `Configuracion > Enviar push de prueba` para confirmar que el dispositivo recibe avisos.
+
+Los tokens de dispositivos se guardan en la hoja `PushDispositivos`. Cuando el disparador diario encuentra vencimientos pendientes, envia correo y tambien push a los dispositivos activos. Si Firebase no esta configurado, el sistema sigue funcionando solo con correo.
